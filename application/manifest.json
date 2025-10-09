@@ -3,7 +3,7 @@
     "name": "Gradient Block",
     "buildPath": "dist/",
     "permissions": ["slobs.scenes-sources"],
-    "supportedPlatforms": [],
+    "supportedPlatforms": ["twitch", "youtube", "facebook"],
     "icon": "./images/sq-icon.jpg",
     "sources": [
       {
