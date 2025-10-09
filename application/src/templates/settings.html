@@ -1,0 +1,146 @@
+<!doctype html>
+<html class="sl-theme-dark" style="height: 100%;">
+  <head>
+    <meta charset="utf-8" />
+    <title>User Settings</title>
+    <script src="https://cdn.streamlabs.com/slobs-platform/lib/streamlabs-platform.min.js"></script>
+
+    <style>
+    * {
+      color: var(--sl-color-neutral-1000);
+      font-family: var(--sl-font-sans);
+      box-sizing: inherit;
+    }
+
+    html {
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: visible;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #0F1219;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #addAppSource {
+      padding: 0.5rem 0;
+    }
+
+    #group {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .gradient-display, .settings-panel {
+      border-radius: 0.25rem;
+      flex: 1;
+      width: 200px;
+      height: 200px;
+    }
+
+    .setting-group {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      padding: 0.5rem;
+      align-items: center;
+      box-sizing: border-box;
+
+      & > sl-range {
+        flex: 1 1 50%;
+      }
+
+      & > sl-color-picker {
+        flex: 1 1 50%;
+      }
+
+      & span {
+        color: var(--sl-color-neutral-600);
+        font-size: var(--sl-font-size-medium);
+
+        & sl-icon {
+          padding-right: 0.25rem; 
+        }
+      }
+
+      & span.expand {
+        flex: 1 1 0%;
+      }
+    }
+
+    .color-picker {
+      padding: 0;
+
+      & > sl-color-picker {
+        flex: none;
+      }
+    }
+    
+    sl-range, sl-select {
+      padding: 0.5rem 0;
+
+      &::part(form-control-label) {
+        color: var(--sl-color-neutral-600);
+      }
+    }
+
+    sl-checkbox {
+      display: block;
+      padding: 0.1rem 0.5rem;
+    }
+
+    sl-details {
+      &::part(base) {
+        border: solid 1px #2b2e37;
+        background-color: #0f1219;
+      }
+    }
+
+    sl-details.custom-icons::part(summary-icon) {
+      /* Disable the expand/collapse animation */
+      rotate: none;
+    }
+
+    sl-color-picker {
+      box-sizing: border-box;
+    }
+
+    </style>
+  </head>
+  <body>
+    <div id="group">
+      <div class="gradient-display"></div>
+      <sl-details summary="New Gradient" class="settings-panel custom-icons" open>
+        <sl-icon name="plus-square" slot="expand-icon"></sl-icon>
+        <sl-icon name="dash-square" slot="collapse-icon"></sl-icon>
+        <sl-select id="type" label="Gradient Type" value="linear">
+          <sl-option value="linear">Linear</sl-option>
+          <sl-option value="radial">Radial</sl-option>
+          <sl-option value="conic">Conic</sl-option>
+        </sl-select>
+        <div class="setting-group color-picker">
+          <sl-color-picker format="hex" id="color1" class="colorInput" label="Color 1" size="small" value="#ff5e54" no-format-toggle="true"></sl-color-picker>
+          <span>Color 1</span>
+        </div>
+        <div class="setting-group color-picker">
+          <sl-color-picker format="hex" id="color2" class="colorInput" label="Color 2" size="small" value="#1609b4" no-format-toggle="true"></sl-color-picker>
+          <span>Color 2</span>
+        </div>
+        <div class="setting-group range">
+          <sl-range id="angle" label="Angle" min="0" max="360" value="180"></sl-range>
+        </div>
+        <sl-button id="addAppSource" size="medium" variant="neutral" class="homepage-element">Create Gradient Block</sl-button>
+    
+      </sl-details>
+    </div>
+    
+  </body>
+</html>
