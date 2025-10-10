@@ -1,6 +1,6 @@
 {
   "name": "application",
-  "version": "0.12",
+  "version": "1.0.0",
   "description": "Gradient Source for the Streamlabs App Store",
   "main": "index.js",
   "scripts": {

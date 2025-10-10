@@ -7,7 +7,6 @@
 
     <style>
     * {
-      color: var(--sl-color-neutral-1000);
       font-family: var(--sl-font-sans);
       box-sizing: inherit;
     }
@@ -29,8 +28,16 @@
       align-items: center;
     }
 
-    #addAppSource {
-      padding: 0.5rem 0;
+    #addAppSource, #saveAppSource {
+      box-sizing: border-box;
+    }
+    #appAppSource {
+      flex: 1;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 0.5rem;
     }
 
     #group {
@@ -39,10 +46,16 @@
       align-items: flex-start;
     }
 
-    .gradient-display, .settings-panel {
+    .gradient-display {
+      border-radius: 0.25rem;
+      width: 200px;
+      height: 200px;
+    }
+
+    .settings-panel {
       border-radius: 0.25rem;
       flex: 1;
-      width: 200px;
+      width: 250px;
       height: 200px;
     }
 
@@ -118,10 +131,10 @@
   <body>
     <div id="group">
       <div class="gradient-display"></div>
-      <sl-details summary="New Gradient" class="settings-panel custom-icons" open>
+      <sl-details summary="Edit Gradient" id='gradient-details' class="settings-panel custom-icons" open>
         <sl-icon name="plus-square" slot="expand-icon"></sl-icon>
         <sl-icon name="dash-square" slot="collapse-icon"></sl-icon>
-        <sl-select id="type" label="Gradient Type" value="linear">
+        <sl-select id="type" label="Gradient Type" value="linear" size="small">
           <sl-option value="linear">Linear</sl-option>
           <sl-option value="radial">Radial</sl-option>
           <sl-option value="conic">Conic</sl-option>
@@ -137,8 +150,12 @@
         <div class="setting-group range">
           <sl-range id="angle" label="Angle" min="0" max="360" value="180"></sl-range>
         </div>
-        <sl-button id="addAppSource" size="medium" variant="neutral" class="homepage-element">Create Gradient Block</sl-button>
+        <div class="buttons">
+          <sl-button id="saveAppSource" size="small" variant="primary" class="homepage-element"><sl-icon slot="prefix" name="floppy"></sl-icon>Save</sl-button>
+          <sl-button id="addAppSource" size="small" variant="neutral" class="homepage-element" outline><sl-icon slot="prefix" name="plus-square"></sl-icon> New Source</sl-button>
     
+        </div>
+        
       </sl-details>
     </div>
     

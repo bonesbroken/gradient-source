@@ -6,10 +6,10 @@ export const defaultGradient = {
 };
 
 export function drawGradient(settings) {
-    const c1 = settings && (settings.color1 !== undefined && settings.color1 !== null) ? settings.color1 : defaultUserSettings.color1;
-    const c2 = settings && (settings.color2 !== undefined && settings.color2 !== null) ? settings.color2 : defaultUserSettings.color2;
-    const angle = settings && (settings.angle !== undefined && settings.angle !== null) ? settings.angle : defaultUserSettings.angle;
-    const type = settings && (settings.type !== undefined && settings.type !== null) ? settings.type : defaultUserSettings.type;
+    const c1 = settings && (settings.color1 !== undefined && settings.color1 !== null) ? settings.color1 : defaultGradient.color1;
+    const c2 = settings && (settings.color2 !== undefined && settings.color2 !== null) ? settings.color2 : defaultGradient.color2;
+    const angle = settings && (settings.angle !== undefined && settings.angle !== null) ? settings.angle : defaultGradient.angle;
+    const type = settings && (settings.type !== undefined && settings.type !== null) ? settings.type : defaultGradient.type;
 
     let gradient;
     if(type === 'linear') {

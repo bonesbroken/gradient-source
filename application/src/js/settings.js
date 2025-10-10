@@ -17,6 +17,7 @@ setBasePath('./shoelace');
 let streamlabs, streamlabsOBS;
 let gradientSettings = defaultGradient;
 let canAddSource = false;
+let existingSource;
 
 async function loadShoelaceElements() {
     await Promise.allSettled([
@@ -29,6 +30,8 @@ async function loadShoelaceElements() {
 }
 
 $(function() {
+    updateUI(gradientSettings);
+    drawGradient(gradientSettings);
     loadShoelaceElements();
     initApp();
 });
@@ -36,30 +39,67 @@ $(function() {
 async function initApp() {
     streamlabs = window.Streamlabs;
     streamlabs.init().then(async () => {
-        await loadUserSettings();
+        //await loadUserSettings();
 
-        // set ui
-        const $type = $('#type');
-        $type.val(gradientSettings["type"] || 'linear');
-
-        const c1 = gradientSettings["color1"] || '#ffffff';
-        const c2 = gradientSettings["color2"] || '#ffffff';
-
-        $('#color1').val(c1);
-        $('#color2').val(c2);
-        $('#color1').next('span').text(nearestColorName(c1));
-        $('#color2').next('span').text(nearestColorName(c2));
-
-        $('#angle').attr('label', `${Number(gradientSettings["angle"])} degrees`);
-
-        // allow add source button
         streamlabsOBS = window.streamlabsOBS;
         streamlabsOBS.apiReady.then(() => {
             canAddSource = true;
         });
+
+        streamlabsOBS.v1.App.onNavigation(nav => {
+
+            if(nav.sourceId) {
+                // Accesses via existing source, load source settings
+                console.log('Accessed via existing source');
+
+                streamlabsOBS.v1.Sources.getAppSourceSettings(nav.sourceId).then(settings => {
+                    existingSource = nav.sourceId;
+
+                    if(!settings) {
+                        console.log('New source, no settings');
+                        updateUI(gradientSettings, 'existing');
+                        
+                    } else {
+                        console.log('Gradient source, update from stored settings');
+                        gradientSettings = JSON.parse(settings);
+                        updateUI(gradientSettings, 'existing');
+                        drawGradient(gradientSettings);
+                    }
+                });  
+            } else {
+                existingSource = null;
+                // Accesses via side nav, load saved settings
+                console.log('Accessed via side nav');
+                updateUI(gradientSettings, 'new');
+                drawGradient(gradientSettings);
+            }
+        });
     });
 }
 
+
+function updateUI(settings, newSource) {
+    if (!settings) return;
+    const $type = $('#type');
+    $type.val(settings["type"]);
+
+    const c1 = settings["color1"];
+    const c2 = settings["color2"];
+
+    $('#color1').val(c1);
+    $('#color2').val(c2);
+    $('#color1').next('span').text(nearestColorName(c1));
+    $('#color2').next('span').text(nearestColorName(c2));
+
+    $('#angle').attr('label', `${Number(settings["angle"])} degrees`);
+    $('#angle').val(Number(settings["angle"]));
+
+    if(newSource === 'new') {
+        $('#saveAppSource').hide();
+    } else {
+        $('#saveAppSource').show();
+    }
+}
 
 function makeAppSourceTitle(settings) {
     const c1 = settings && settings.color1 ? settings.color1 : (defaultGradient.color1 || '#000000');
@@ -71,32 +111,6 @@ function makeAppSourceTitle(settings) {
     return gradientString;
 }
 
-async function loadUserSettings() {
-    streamlabs.userSettings.get('gradient-settings').then(data => {
-        
-        if (typeof data == "object") {
-            // check for missing values
-            for (const [key, value] of Object.entries(defaultGradient)) {
-                if(!data.hasOwnProperty(key)) {
-                    console.log(`setting '${key}' missing! set to ${value}`);
-                    data[key] = defaultGradient[key];
-                }
-            }
-            gradientSettings = data;
-
-        }
-        drawGradient(data);
-    });
-
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            console.log('Gradient Settings:', gradientSettings);
-            resolve();
-        }, 1000);
-    });
-}
-
-
 $("sl-range").off('sl-change');
 $("sl-range").on('sl-change', event => {
     const value = event.target && event.target.value;
@@ -107,9 +121,9 @@ $("sl-range").on('sl-change', event => {
     gradientSettings[$(event.target).attr('id')] = numeric;
     drawGradient(gradientSettings);
 
-    streamlabs.userSettings.set('gradient-settings', gradientSettings).then(() => {}).catch(saveErr => {
-        console.error('Failed to save setting', saveErr);
-    });
+    // streamlabs.userSettings.set('gradient-settings', gradientSettings).then(() => {}).catch(saveErr => {
+    //     console.error('Failed to save setting', saveErr);
+    // });
 });
 
 $('#type').off('sl-change');
@@ -121,9 +135,9 @@ $('#type').on('sl-change', event => {
     gradientSettings[id] = val;
     drawGradient(gradientSettings);
 
-    streamlabs.userSettings.set('gradient-settings', gradientSettings).then(() => {}).catch(saveErr => {
-        console.error('Failed to save setting', saveErr);
-    });
+    // streamlabs.userSettings.set('gradient-settings', gradientSettings).then(() => {}).catch(saveErr => {
+    //     console.error('Failed to save setting', saveErr);
+    // });
 });
 
 $('.colorInput').off('sl-change');
@@ -138,9 +152,9 @@ $('.colorInput').on('sl-change', event => {
     gradientSettings[id] = val;
     drawGradient(gradientSettings);
 
-    streamlabs.userSettings.set('gradient-settings', gradientSettings).then(() => {}).catch(saveErr => {
-        console.error('Failed to save setting', saveErr);
-    });
+    // streamlabs.userSettings.set('gradient-settings', gradientSettings).then(() => {}).catch(saveErr => {
+    //     console.error('Failed to save setting', saveErr);
+    // });
 });
 
 // Nearest color name lookup: small palette of common CSS color names with hex values
@@ -187,14 +201,28 @@ function nearestColorName(hex) {
     }
     return best.name;
 }
+$("#saveAppSource").on('click', () => { 
+    if(!canAddSource) return;
+    const title = makeAppSourceTitle(gradientSettings || {});
+
+    if(existingSource) {
+        streamlabsOBS.v1.Sources.updateSource({id: existingSource, name: title});
+        streamlabsOBS.v1.Sources.setAppSourceSettings(existingSource, JSON.stringify(gradientSettings));
+        streamlabsOBS.v1.App.navigate('Editor');
+        existingSource = null;
+    }
+});
+
 
 $("#addAppSource").on('click', () => { 
     if(!canAddSource) return;
+    const title = makeAppSourceTitle(gradientSettings || {});
+
     streamlabsOBS.v1.Scenes.getActiveScene().then(scene => {
-        const title = makeAppSourceTitle(gradientSettings || {});
         streamlabsOBS.v1.Sources.createAppSource(title, 'gradient_block').then(source => {
             streamlabsOBS.v1.Sources.setAppSourceSettings(source.id, JSON.stringify(gradientSettings));
             streamlabsOBS.v1.Scenes.createSceneItem(scene.id, source.id);
+            streamlabsOBS.v1.App.navigate('Editor');
         });
     });
 });
